@@ -36,6 +36,9 @@ const Palette = styled.div`
   box-shadow: rgba(0, 0, 0, 0.8) 0px 5px 15px 0px;
 `;
 
+const SliderContainer = styled.div`
+  margin-top: 10px;
+`;
 const SliderLabel = styled.label`
   font-size: 12;
   font-family: monospace;
@@ -43,7 +46,7 @@ const SliderLabel = styled.label`
 
 const Slider = styled.input`
   width: 100%;
-  color: ${(props) => props.color};
+  accent-color: ${(props) => props.color};
 `;
 
 const Canvas = () => {
@@ -67,11 +70,8 @@ const Canvas = () => {
   };
 
   const handleClick = () => {
-    console.log("click");
-    console.log(mousePositionX, mousePositionY, cursorSize, color);
-
     d3.select(inputRef.current)
-      .append("circle")
+      .insert("circle", "#cursor")
       .attr("r", cursorSize)
       .attr("cx", mousePositionX)
       .attr("cy", mousePositionY)
@@ -85,28 +85,32 @@ const Canvas = () => {
         <Palette>
           <HexColorPicker color={color} onChange={updateColor} />
 
-          <SliderLabel for="cursor-size">Size (px)</SliderLabel>
-          <Slider
-            type="range"
-            color={color}
-            min={5}
-            max={500}
-            value={cursorSize}
-            onChange={(e) => updateCursorSize(e.target.value)}
-            id="cursor-size"
-          />
+          <SliderContainer>
+            <SliderLabel for="cursor-size">Size (px)</SliderLabel>
+            <Slider
+              type="range"
+              color={color}
+              min={5}
+              max={500}
+              value={cursorSize}
+              onChange={(e) => updateCursorSize(e.target.value)}
+              id="cursor-size"
+            />
+          </SliderContainer>
 
-          <SliderLabel for="cursor-opacity">Opacity</SliderLabel>
-          <Slider
-            type="range"
-            color={color}
-            min={0}
-            max={1}
-            step="0.01"
-            value={cursorOpacity}
-            onChange={(e) => updateCursorOpacity(e.target.value)}
-            id="cursor-opacity"
-          />
+          <SliderContainer>
+            <SliderLabel for="cursor-opacity">Opacity</SliderLabel>
+            <Slider
+              type="range"
+              color={color}
+              min={0}
+              max={1}
+              step="0.01"
+              value={cursorOpacity}
+              onChange={(e) => updateCursorOpacity(e.target.value)}
+              id="cursor-opacity"
+            />
+          </SliderContainer>
         </Palette>
 
         {/* on click, deposit colour and shape somehow - only on main canvasy */}
@@ -122,6 +126,7 @@ const Canvas = () => {
             height="500px"
             onMouseMove={handleMouseMove}
             ref={inputRef}
+            className="parent-svg"
           >
             <circle
               r={cursorSize}
@@ -129,6 +134,7 @@ const Canvas = () => {
               cy={mousePositionY}
               fill={color}
               fillOpacity={cursorOpacity}
+              id="cursor"
             />
           </svg>
         </MainCanvas>
