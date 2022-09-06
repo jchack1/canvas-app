@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useRef} from "react";
 import {HexColorPicker} from "react-colorful";
-import Circle from "./shapes/Circle";
+import {CircleTools, RectangleTools, TriangleTools} from "./PaletteTools";
+
 import * as d3 from "d3";
 
 const PageContainer = styled.div`
@@ -35,6 +36,11 @@ const Palette = styled.div`
   margin-right: 50px;
   box-shadow: rgba(0, 0, 0, 0.8) 0px 5px 15px 0px;
 `;
+const ShapeSelectionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 const SliderContainer = styled.div`
   margin-top: 10px;
@@ -54,9 +60,16 @@ const Canvas = () => {
   const [mousePositionY, updateMousePositionY] = useState(0);
 
   const [color, updateColor] = useState("#000");
+  const [shapeSelection, updateShapeSelection] = useState("circle");
+  const [rotate, updateRotate] = useState(0);
 
+  //circle
   const [cursorSize, updateCursorSize] = useState(50);
   const [cursorOpacity, updateCursorOpacity] = useState("1");
+
+  //rectangle
+  const [rectangleWidth, updateRectangleWidth] = useState(50);
+  const [rectangleHeight, updateRectangleHeight] = useState(70);
 
   const inputRef = useRef();
 
@@ -70,14 +83,49 @@ const Canvas = () => {
   };
 
   const handleClick = () => {
-    d3.select(inputRef.current)
-      .insert("circle", "#cursor")
-      .attr("r", cursorSize)
-      .attr("cx", mousePositionX)
-      .attr("cy", mousePositionY)
-      .attr("fill", color)
-      .attr("fill-opacity", cursorOpacity);
+    if (shapeSelection === "circle") {
+      d3.select(inputRef.current)
+        .insert("circle", "#circle-cursor")
+        .attr("r", cursorSize)
+        .attr("cx", mousePositionX)
+        .attr("cy", mousePositionY)
+        .attr("fill", color)
+        .attr("fill-opacity", cursorOpacity);
+    }
+    if (shapeSelection === "rectangle") {
+      d3.select(inputRef.current)
+        .insert("rect", "#rect-cursor")
+        .style("transform-origin", "center")
+        .style("transform-box", "fill-box")
+        .attr("transform", `rotate(${rotate})`)
+        .attr("width", rectangleWidth)
+        .attr("height", rectangleHeight)
+        .attr("x", mousePositionX)
+        .attr("y", mousePositionY)
+        .attr("fill", color)
+        .attr("fill-opacity", cursorOpacity);
+    }
+    if (shapeSelection === "triangle") {
+      d3.select(inputRef.current)
+        // .append("svg")
+        .insert("svg", "#triangle-cursor")
+        .append("polygon")
+        .attr("points", "50 15, 100 100, 0 100")
+        .style("transform-origin", "center")
+        .style("transform-box", "fill-box")
+        .attr("transform", `translate(${mousePositionX} ${mousePositionY})`)
+        .attr("transform", `rotate(${rotate})`)
+        .attr("fill", color)
+        .attr("fill-opacity", cursorOpacity);
+    }
   };
+
+  const handleShapeClick = (shape) => {
+    updateShapeSelection(shape);
+    console.log("handleshape: " + shape);
+  };
+
+  console.log(shapeSelection);
 
   return (
     <PageContainer>
@@ -85,18 +133,39 @@ const Canvas = () => {
         <Palette>
           <HexColorPicker color={color} onChange={updateColor} />
 
-          <SliderContainer>
-            <SliderLabel for="cursor-size">Size (px)</SliderLabel>
-            <Slider
-              type="range"
-              color={color}
-              min={5}
-              max={500}
-              value={cursorSize}
-              onChange={(e) => updateCursorSize(e.target.value)}
-              id="cursor-size"
-            />
-          </SliderContainer>
+          <ShapeSelectionContainer>
+            {/* circle */}
+            <svg width={40} height={40} style={{margin: "10px"}}>
+              <circle
+                r={20}
+                cx={20}
+                cy={20}
+                fill={color}
+                onClick={() => handleShapeClick("circle")}
+              />
+            </svg>
+
+            {/* rectangle */}
+            <svg width={40} height={30}>
+              <rect
+                x="0"
+                y="0"
+                width={40}
+                height={30}
+                fill={color}
+                onClick={() => handleShapeClick("rectangle")}
+              />
+            </svg>
+
+            {/* triangle */}
+            <svg width={60} height={40} viewBox="0 0 100 100">
+              <polygon
+                points="50 15, 100 100, 0 100"
+                onClick={() => handleShapeClick("triangle")}
+                fill={color}
+              />
+            </svg>
+          </ShapeSelectionContainer>
 
           <SliderContainer>
             <SliderLabel for="cursor-opacity">Opacity</SliderLabel>
@@ -111,6 +180,32 @@ const Canvas = () => {
               id="cursor-opacity"
             />
           </SliderContainer>
+
+          {shapeSelection === "circle" && (
+            <CircleTools
+              color={color}
+              cursorSize={cursorSize}
+              updateCursorSize={updateCursorSize}
+            />
+          )}
+          {shapeSelection === "rectangle" && (
+            <RectangleTools
+              color={color}
+              rectangleWidth={rectangleWidth}
+              rectangleHeight={rectangleHeight}
+              updateRectangleWidth={updateRectangleWidth}
+              updateRectangleHeight={updateRectangleHeight}
+              rotate={rotate}
+              updateRotate={updateRotate}
+            />
+          )}
+          {shapeSelection === "triangle" && (
+            <TriangleTools
+              color={color}
+              rotate={rotate}
+              updateRotate={updateRotate}
+            />
+          )}
         </Palette>
 
         {/* on click, deposit colour and shape somehow - only on main canvasy */}
@@ -128,14 +223,41 @@ const Canvas = () => {
             ref={inputRef}
             className="parent-svg"
           >
-            <circle
-              r={cursorSize}
-              cx={mousePositionX}
-              cy={mousePositionY}
-              fill={color}
-              fillOpacity={cursorOpacity}
-              id="cursor"
-            />
+            {shapeSelection === "circle" && (
+              <circle
+                r={cursorSize}
+                cx={mousePositionX}
+                cy={mousePositionY}
+                fill={color}
+                fillOpacity={cursorOpacity}
+                id="circle-cursor"
+              />
+            )}
+
+            {shapeSelection === "rectangle" && (
+              <rect
+                width={rectangleWidth}
+                height={rectangleHeight}
+                x={mousePositionX}
+                y={mousePositionY}
+                fill={color}
+                fillOpacity={cursorOpacity}
+                id="rect-cursor"
+                transform={`rotate(${rotate})`}
+                style={{transformOrigin: "center", transformBox: "fill-box"}}
+              />
+            )}
+
+            {shapeSelection === "triangle" && (
+              <polygon
+                points="50 15, 100 100, 0 100"
+                fill={color}
+                fillOpacity={cursorOpacity}
+                transform={`translate(${mousePositionX} ${mousePositionY}), rotate(${rotate})`}
+                style={{transformOrigin: "center", transformBox: "fill-box"}}
+                id="triangle-cursor"
+              />
+            )}
           </svg>
         </MainCanvas>
       </CanvasContainer>
