@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const SliderContainer = styled.div`
-  margin-top: 10px;
+  margin: 5px 10px;
 `;
 const SliderLabel = styled.label`
   font-size: 12;
@@ -90,9 +90,27 @@ const TriangleTools = (props) => {
           onChange={(e) => props.updateRotate(e.target.value)}
           id="triangle-rotate"
         />
+        <SliderLabel for="triangle-scale">Size</SliderLabel>
+        <Slider
+          type="range"
+          color={props.color}
+          min={0.1}
+          max={6}
+          step={0.1}
+          value={props.triangleScale}
+          onChange={(e) => props.updateTriangleScale(e.target.value)}
+          id="triangle-scale"
+        />
       </SliderContainer>
     </div>
   );
 };
 
-export {CircleTools, RectangleTools, TriangleTools};
+export {
+  CircleTools,
+  RectangleTools,
+  TriangleTools,
+  Slider,
+  SliderLabel,
+  SliderContainer,
+};
