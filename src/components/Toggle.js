@@ -12,8 +12,6 @@ const Container = styled.div`
   }
 `;
 const ToggleContainer = styled.div`
-  //* background: ${(props) =>
-    props.active === "and" ? "#9ef0bc" : "#ffe085"}; *//
   background: #aaa;
   height: 25px;
   width: 57px;

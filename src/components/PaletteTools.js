@@ -18,7 +18,7 @@ const CircleTools = (props) => {
   return (
     <div>
       <SliderContainer>
-        <SliderLabel for="cursor-size">Radius(px)</SliderLabel>
+        <SliderLabel for="cursor-size">Radius</SliderLabel>
         <Slider
           type="range"
           color={props.color}
@@ -37,7 +37,7 @@ const RectangleTools = (props) => {
   return (
     <div>
       <SliderContainer>
-        <SliderLabel for="rectangle-width">Width (px)</SliderLabel>
+        <SliderLabel for="rectangle-width">Width </SliderLabel>
         <Slider
           type="range"
           color={props.color}
@@ -49,7 +49,7 @@ const RectangleTools = (props) => {
         />
       </SliderContainer>
       <SliderContainer>
-        <SliderLabel for="rectangle-height">Height (px)</SliderLabel>
+        <SliderLabel for="rectangle-height">Height </SliderLabel>
         <Slider
           type="range"
           color={props.color}

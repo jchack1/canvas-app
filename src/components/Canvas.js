@@ -27,19 +27,14 @@ const CanvasContainer = styled.div`
   justify-items: space-around;
   align-items: center;
   margin: 0 auto;
-
-  @media (max-width: 950px) {
-    flex-direction: column;
-
-    width: 80vw;
-    height: 70vh;
-  }
 `;
 
 const MainCanvas = styled.div`
   background: #ddd;
-  width: 700px;
-  height: 500px;
+  width: 60vw;
+  max-width: 900px;
+  height: 80vh;
+  max-height: 600px;
   box-shadow: rgba(0, 0, 0, 0.8) 0px 5px 15px 0px;
   cursor: none;
 `;
@@ -47,16 +42,12 @@ const MainCanvas = styled.div`
 const Palette = styled.div`
   background: #ddd;
   width: 200px;
-  height: 500px;
+
+  height: 80vh;
+  max-height: 600px;
+
   margin-right: 50px;
   box-shadow: rgba(0, 0, 0, 0.8) 0px 5px 15px 0px;
-
-  @media (max-width: 950px) {
-    width: 80vw;
-    height: 20vh;
-    display: flex;
-    margin-right: 0;
-  }
 `;
 const ShapeSelectionContainer = styled.div`
   display: flex;
@@ -82,6 +73,8 @@ const ClearCanvasButton = styled.div`
 `;
 
 const Canvas = () => {
+  // STATE
+
   const [mousePositionX, updateMousePositionX] = useState(0);
   const [mousePositionY, updateMousePositionY] = useState(0);
 
@@ -103,6 +96,8 @@ const Canvas = () => {
 
   const inputRef = useRef();
 
+  // HELPER FUNCTIONS
+
   const handleMouseMove = (event) => {
     const {clientX, clientY} = event;
     const displacementX = inputRef.current.getBoundingClientRect().x; //inputRef.current just gets the current element, you can then get information about that element like in vanilla javascript
@@ -112,7 +107,7 @@ const Canvas = () => {
     updateMousePositionY(clientY - displacementY);
   };
 
-  const handleDraw = (drawingType) => {
+  const handleDraw = () => {
     if (shapeSelection === "circle") {
       d3.select(inputRef.current)
         .insert("circle", "#circle-cursor")
@@ -157,7 +152,7 @@ const Canvas = () => {
     }
   };
 
-  const handleMouseDown = () => {
+  const handleMouseOver = () => {
     if (drawingType === "click") {
       return;
     }
@@ -172,16 +167,20 @@ const Canvas = () => {
     d3.select(".parent-svg").selectAll(".drawn-shape").remove();
   };
 
+  // MAIN APP
   return (
     <PageContainer>
       <CanvasContainer>
+        {/* palette with drawing tools */}
         <Palette>
+          {/* select color */}
           <HexColorPicker
             color={color}
             onChange={updateColor}
             style={{height: "120px"}}
           />
 
+          {/* select shape to draw with */}
           <ShapeSelectionContainer>
             {/* circle */}
             <svg width={40} height={40} style={{margin: "10px"}}>
@@ -216,6 +215,7 @@ const Canvas = () => {
             </svg>
           </ShapeSelectionContainer>
 
+          {/* select clicking or continuous drawing method */}
           <SliderContainer>
             <Toggle
               onClick={() => {
@@ -231,6 +231,7 @@ const Canvas = () => {
             />
           </SliderContainer>
 
+          {/* select shape opacity */}
           <SliderContainer>
             <SliderLabel for="cursor-opacity">Opacity</SliderLabel>
             <Slider
@@ -244,6 +245,8 @@ const Canvas = () => {
               id="cursor-opacity"
             />
           </SliderContainer>
+
+          {/* shape-specific selector tools  */}
 
           {shapeSelection === "circle" && (
             <CircleTools
@@ -273,26 +276,30 @@ const Canvas = () => {
             />
           )}
 
+          {/* button to clear all svgs except the cursor */}
           <ClearCanvasButton onClick={() => handleClear()}>
             Clear canvas
           </ClearCanvasButton>
         </Palette>
 
-        {/* on click, deposit colour and shape somehow - only on main canvasy */}
+        {/* canvas, starting out with a circle for the cursor, append more shapes to this through the app */}
+
         <MainCanvas
           onMouseMove={handleMouseMove}
-          onMouseDown={handleMouseDown()}
           onClick={handleDraw}
+          onMouseOver={handleMouseOver()}
           data-canvas
         >
-          {/* important!!! we must add shapes to the svg, so ref must be on svg */}
+          {/* important!!! we must add shapes to the svg, not the canvas div, so ref must be on svg */}
           <svg
-            width="700px"
-            height="500px"
+            width="100%"
+            height="100%"
             onMouseMove={handleMouseMove}
             ref={inputRef}
             className="parent-svg"
           >
+            {/* change cursor depending on what shape user selects from palette */}
+
             {shapeSelection === "circle" && (
               <circle
                 r={cursorSize}
@@ -314,7 +321,7 @@ const Canvas = () => {
                 fillOpacity={cursorOpacity}
                 id="rect-cursor"
                 transform={`rotate(${rotate})`}
-                style={{transformOrigin: "center", transformBox: "fill-box"}}
+                style={{transformOrigin: "center", transformBox: "fill-box"}} //helps keep shape and cursor lined up after rotate
               />
             )}
 
@@ -324,7 +331,7 @@ const Canvas = () => {
                 fill={color}
                 fillOpacity={cursorOpacity}
                 transform={`translate(${mousePositionX} ${mousePositionY}), rotate(${rotate}), scale(${triangleScale})`}
-                style={{transformOrigin: "center", transformBox: "fill-box"}}
+                style={{transformOrigin: "center", transformBox: "fill-box"}} //helps keep shape and cursor lined up after rotate
                 id="triangle-cursor"
               />
             )}
