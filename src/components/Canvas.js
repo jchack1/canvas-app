@@ -10,16 +10,21 @@ import {
   SliderLabel,
 } from "./PaletteTools";
 import Toggle from "./Toggle";
-
+import BackgroundPainting from "../assets/background-paint-texture.jpg"; //original image from unsplash(steve johson) but edited to decrease contrast
 import * as d3 from "d3";
 
 const PageContainer = styled.div`
-  background-color: #222;
   overflow: hidden;
   display: flex;
   margin: 0 auto;
   width: 100vw;
   height: 100vh;
+
+  background-image: url(${BackgroundPainting});
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  box-sizing: border-box;
 `;
 
 const CanvasContainer = styled.div`
@@ -169,7 +174,7 @@ const Canvas = () => {
 
   // MAIN APP
   return (
-    <PageContainer>
+    <PageContainer className="background">
       <CanvasContainer>
         {/* palette with drawing tools */}
         <Palette>
